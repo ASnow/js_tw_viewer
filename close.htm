@@ -1,0 +1,30 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script type="text/javascript">
+// Function close current window witch contain iframe
+// and change focus on main window
+function closeWnd(){
+  function changeFocus(){
+    if(parent.opener)
+    {
+      parent.opener.focus();
+    }
+    else if(parent.parentWnd)
+    {
+      parent.parentWnd.focus();
+    }
+  }
+  
+  changeFocus();
+  if(top)
+  {
+    top.close();
+  }
+}
+</script>
+</head>
+<body>
+<a href="javascript: closeWnd()">Закрыть окно</a>
+</body>
+</html>

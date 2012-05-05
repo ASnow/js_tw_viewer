@@ -1,0 +1,75 @@
+<html>
+<head>
+<script src="http://code.jquery.com/jquery.min.js" type="text/javascript"></script> 
+<script src="http://media.twitter.com/blackbird-pie/twitter-text.js" type="text/javascript"></script> 
+<script src="http://media.twitter.com/blackbird-pie/mustache.js" type="text/javascript"></script> 
+
+<script type="text/javascript">
+
+$(function (){
+
+// getting initial parameters
+  var hash = document.location.hash.substr(1).split('-/-');
+
+  // Theme our data and output it
+  setTweetContent = function (t) {
+    var tweetView = t;
+    tweetView.tweetText = TwitterText.auto_link(t.tweetText);
+    var tweetTemplate = "";
+    tweetTemplate += "<style type='text/css'>.bbpBox{{id}} {background:url({{{profileBackgroundImage}}}) #{{{profileBackgroundColor}}};padding:20px;} p.bbpTweet{background:#fff;padding:10px 12px 10px 12px;margin:0;min-height:48px;color:#000;font-size:18px !important;line-height:22px;-moz-border-radius:5px;-webkit-border-radius:5px} p.bbpTweet span.metadata{display:block;width:100%;clear:both;margin-top:8px;padding-top:12px;height:40px;border-top:1px solid #fff;border-top:1px solid #e6e6e6} p.bbpTweet span.metadata span.author{line-height:19px} p.bbpTweet span.metadata span.author img{float:left;margin:0 7px 0 0px;width:38px;height:38px} p.bbpTweet a:hover{text-decoration:underline}p.bbpTweet span.timestamp{font-size:12px;display:block}</style> ";
+    tweetTemplate += "<div class='bbpBox{{id}}'><p class='bbpTweet'>{{{tweetText}}}<span class='timestamp'><a title='{{timeStamp}}' href='{{{tweetURL}}}'>less than a minute ago</a> via {{{source}}} <a href='http://twitter.com/intent/favorite?tweet_id={{id}}'><img src='http://si0.twimg.com/images/dev/cms/intents/icons/favorite.png' /> Favorite</a> <a href='http://twitter.com/intent/retweet?tweet_id={{id}}'><img src='http://si0.twimg.com/images/dev/cms/intents/icons/retweet.png' /> Retweet</a> <a href='http://twitter.com/intent/tweet?in_reply_to={{id}}'><img src='http://si0.twimg.com/images/dev/cms/intents/icons/reply.png' /> Reply</a></span><span class='metadata'><span class='author'><a href='http://twitter.com/{{screenName}}'><img src='{{profilePic}}' /></a><strong><a href='http://twitter.com/{{screenName}}'>{{realName}}</a></strong><br/>{{screenName}}</span></span></p></div>"; //tweetTemplate += "<div class='bbpBox{{id}}'><p class='bbpTweet'>{{{tweetText}}}<span class='timestamp'><a title='{{timeStamp}}' href='{{{tweetURL}}}'>less than a minute ago</a> via {{{source}}}</span><span class='metadata'><span class='author'><a href='http://twitter.com/{{screenName}}'><img src='{{profilePic}}' /></a><strong><a href='http://twitter.com/{{screenName}}'>{{realName}}</a></strong><br/>{{screenName}}</span></span></p></div>";	tweetTemplate += "";		
+    var tweetMarkup = Mustache.to_html(tweetTemplate, tweetView);
+    $('body, html', getFrameContext('i2')).css({margin: 0, padding:0, height: '100%'});
+    $('body', getFrameContext('i2')).addClass('bbpBox'+hash[1]);
+    $('body', getFrameContext('i2')).html(tweetMarkup);
+  }
+
+  // loading twitte info
+  function load_twitte() {
+    if (hash[1]) {
+      proxiedAPIRequest = "" + ("http://api.twitter.com/1/statuses/show.json?id=" + hash[1]);
+      $.ajax({
+        url: proxiedAPIRequest,
+        dataType: 'jsonp',
+        success: function (data){
+          setTweetContent({
+            id: data.id_str,
+            tweetURL: 'http://twitter.com/!#/'+hash[0]+'/status/'+hash[1],
+            screenName: data.user.screen_name,
+            realName: data.user.name,
+            tweetText: data.text,
+            source: data.source,
+            profilePic: data.user.profile_image_url,
+            profileBackgroundColor: data.user.profile_background_color,
+            profileBackgroundImage: data.user.profile_background_image_url,
+            profileTextColor: data.user.profile_text_color,
+            profileLinkColor: data.user.profile_link_color,
+            timeStamp: data.created_at,
+            utcOffset: data.user.utc_offset
+          });
+        }
+      });
+    } else {
+      alert("Nope! This recipe calls for a full, valid tweet URL.");
+    }
+    return false;
+  }
+
+
+  // Helper for creating of iframe context
+  function getFrameContext(id){
+    var x=document.getElementById(id);
+    var y=(x.contentWindow || x.contentDocument);
+    if (y.document)y=y.document;
+    return y;
+  }
+
+  // Start our scripts
+  load_twitte();
+});
+</script>
+</head>
+<body>
+<iframe id="i1" width="100%" height="30px" src="./close.htm">no frame</iframe><iframe width="100%" height="600px" id="i2" src=""></iframe>
+</body>
+</html>
